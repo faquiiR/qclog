@@ -1,0 +1,20 @@
+{
+    "name": "huy/qclog",
+    "description": "A package that allows you to use monolog more flexibly.",
+    "require": {
+        "php": ">=5.5.9"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "hushaofei",
+            "email": "858518145@qq.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "Qc\\": "src/"
+        }
+    }
+}
