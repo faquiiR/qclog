@@ -2,18 +2,20 @@
 
 namespace Qc;
 
+use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
 /**
+*	MonoLog基于现有业务使用场景的简单封装
 * 
 */
 class QcLog
 {
 
-	public function __call($name, $arguments){
+	public function __callStatic($name, $arguments){
 		$dateFormat = config('qclog.dateFormat', 'Y-m-d H:i:s');
-		$outputFormat = config('qclog.outputFormat', '[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n');
+		$outputFormat = config('qclog.outputFormat', "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n");
 
 		if(!empty(config("qclog.$name")) && $name !== 'dateFormat' && $name !== 'outputFormat'){
 			if(!empty(config("qclog.$name.dateFormat"))){
@@ -25,15 +27,19 @@ class QcLog
 			}
 
 			$logger = new Logger($name);
-			$logger->pushHandler(new StreamHandler(config("qclog.$name.file"), storage_path() . '/logs/laravel.log'));
+     		$formatter = new LineFormatter($outputFormat, $dateFormat, false, false);
+      		$stream = new StreamHandler(config("qclog.$name.file",storage_path() . '/logs/laravel.log'));
+      		$stream->setFormatter($formatter);
+			$logger->pushHandler($stream);
 
 			return $logger;
 		} else {
-			$logger = new Logger;
-			if (in_array($name, ['addInfo', 'addDebug', 'addNotice', 'addWarnning','addEmergency', 'addAlert', 'addCritical', 'addError'])) {
-				$logger->$name($arguments[0]);
+			$logger = new Logger('laravel');
+			if (in_array($name, ['addInfo', 'addDebug', 'addNotice', 'addWarning','addEmergency', 'addAlert', 'addCritical', 'addError'])) {
+        		$logger->pushHandler(new StreamHandler(storage_path() . '/logs/laravel.log'));
+        		$logger->$name($arguments[0]);
 			}else{
-				throw new Exception("别逗，这个方法不支持~", 1);
+				throw new \Exception("别逗，这个方法不支持~", 1);
 				
 			}
 		}
